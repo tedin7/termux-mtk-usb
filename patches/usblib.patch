@@ -1,0 +1,25 @@
+diff --git a/mtkclient/Library/Connection/usblib.py b/mtkclient/Library/Connection/usblib.py
+index fafb1ab..ad83ea9 100644
+--- a/mtkclient/Library/Connection/usblib.py
++++ b/mtkclient/Library/Connection/usblib.py
+@@ -129,7 +129,10 @@ class UsbClass(DeviceClass):
+         self.EP_OUT = None
+         self.is_serial = False
+         self.queue = Queue()
+-        if sys.platform.startswith('freebsd') or sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
++        if "TERMUX_USB_FD" in os.environ:
++            from mtkclient.Library.Connection.termuxusb import TermuxFDBackend
++            self.backend = TermuxFDBackend(int(os.environ["TERMUX_USB_FD"]))
++        elif sys.platform.startswith('freebsd') or sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
+             self.backend = usb.backend.libusb1.get_backend(find_library=lambda x: "libusb-1.0.so")
+         elif sys.platform.startswith('win32'):
+             if calcsize("P") * 8 == 64:
+@@ -319,7 +322,7 @@ class UsbClass(DeviceClass):
+             if e.strerror == "Configuration not set":
+                 self.device.set_configuration()
+                 self.configuration = self.device.get_active_configuration()
+-            if e.errno == 13:
++            if e.errno == 13 and "TERMUX_USB_FD" not in os.environ:
+                 self.backend = usb.backend.libusb0.get_backend()
+                 self.device = usb.core.find(idVendor=self.vid, idProduct=self.pid, backend=self.backend)
+         if self.configuration is None:

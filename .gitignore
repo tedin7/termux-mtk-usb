@@ -1,0 +1,12 @@
+vendor/
+.venv/
+venv/
+__pycache__/
+*.pyc
+runs/
+*.log
+*.bin
+*.img
+*.zip
+*.tgz
+.env*
